@@ -40,3 +40,18 @@ dict_values(['runoob', 1, 'www.runoob.com'])
 {2: 4, 4: 16, 6: 36}
 {'Runoob': 1, 'Google': 2, 'Taobao': 3}
 '''
+
+dict1={'liangdianshui':'111111', 'twowater':'222222', '两点水':'333333'}
+dict2={'abc':1234, 1234:'abc'}
+
+print(dict1)
+print(dict2)
+print(dict2['abc'])
+print(dict2[1234])
+
+'''
+{'liangdianshui': '111111', 'twowater': '222222', '两点水': '333333'}
+{'abc': 1234, 1234: 'abc'}
+1234
+abc
+'''
