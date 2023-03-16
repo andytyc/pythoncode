@@ -74,8 +74,10 @@ class People:
 
 # 实例化类
 p = People("runoob", 10, 30)
-# 调用实例方法
+# 方式1: 调用实例方法
 p.speak()
+# 方式2: 调用实例方法
+People.speak(p)
 
 
 class Site:

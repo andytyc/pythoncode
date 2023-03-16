@@ -35,7 +35,10 @@ class Student(People):
 
 
 s = People("peo", 10, 60)
+# 方式1: 调用实例方法
 s.speak()
+# 方式2: 调用实例方法
+People.speak(s)
 
 s = Student("stu", 10, 60, 3)
 s.speak()
@@ -129,3 +132,95 @@ s.speak()
 s = Student77("stu77", 10, 60, 3)
 s.speak()
 super(Student77, s).speak()  # s作为子类(Student77)的对象，调用父类(People77)的方法
+
+
+class Test:
+    math = 100
+
+    # 类构造方法也是实例方法(有self)
+    def __init__(self):
+        self.Chinese = 90
+        self.English = 80
+
+    # 不能获取类属性，也不能获取构造函数定义的变量，属于function类型
+    @staticmethod
+    def say():
+        print("我的语文成绩是：90")
+
+
+# 方式1: 类直接调用
+Test.say()
+print(Test.say)  # <function Test.say at 0x000001C2620257B8>
+
+# 方式2: 实例化后调用
+A = Test()
+A.say()
+print(A.say)  # <function Test.say at 0x000001C2620257B8>
+
+
+class Test22:
+    math = 100
+
+    # 类构造方法也是实例方法(有self)
+    def __init__(self):
+        self.Chinese = 90
+        self.English = 80
+
+    # 可以获取类属性，不能获取构造函数(self 实例方法)定义的变量，属于method类型
+    @classmethod
+    def say(cls):
+        print("我的数学成绩是：{}".format(cls.math))
+
+
+# 方式1: 类直接调用
+Test22.say()
+print(Test22.say)  # <bound method Test22.say of <class '__main__.Test22'>>
+
+# 方式2: 实例化后调用(不推荐这样使用)
+Test22().say()
+print(Test22().say)  # <bound method Test22.say of <class '__main__.Test22'>>
+
+# 我的数学成绩是：100
+# <bound method Test22.say of <class '__main__.Test22'>>
+# 我的数学成绩是：100
+# <bound method Test22.say of <class '__main__.Test22'>>
+
+
+class User1(object):
+    pass
+
+
+class User2(User1):
+    pass
+
+
+class User3(User2):
+    pass
+
+
+user1 = User1()
+user2 = User2()
+user3 = User3()
+
+# isinstance()就可以告诉我们，一个实例化对象是否是某种类型
+print(isinstance(user3, User2))  # True
+print(isinstance(user3, User1))  # True
+print(isinstance(user3, User3))  # True
+print(isinstance(user2, User3))  # False
+print(isinstance(user2, User1))  # True
+
+print("****")
+
+# 判断 A 是否是 B,C 的子类
+print(issubclass(User3, User1))  # True
+print(issubclass(User3, User2))  # True
+print(issubclass(User3, (User1, User2)))  # True
+print(issubclass(User1, User3))  # False
+print(issubclass(User1, User2))  # False
+
+print("****")
+
+# 基本类型也可以用isinstance()判断
+print(isinstance("两点水", str))  # True
+print(isinstance(347073565, int))  # True
+print(isinstance(347073565, str))  # False
