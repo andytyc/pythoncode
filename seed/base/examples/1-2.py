@@ -357,7 +357,9 @@ class Tiger:
 class WhiteTiger(Tiger):
     def __init__(self, name, age, height):
         # 1 处让子类中可以调用父类的属性，其实就相当于运行父类的_init_函数。
-        # 如果没有#1，则实例无法调用name属性；也无法调用realname方法，因为它用到了name属性。
+
+        # 标准引用 (standard call)
+        # 如果没有#1，则实例无法调用name属性；也无法调用realname方法，因为它用到了name属性，所以：需要初始化父类，这样就有了这些属性。
         # super(WhiteTiger, self).__init__(name, age)  # 1 (1-1) 调用父类初始化操作
 
         #######
@@ -405,6 +407,7 @@ print(wtony.realname())
 # 四边形
 class Rectangle:
     def __init__(self, length, width, **kwargs):
+        print("[Rectangle] __init__", length, width, kwargs)
         self.length = length
         self.width = width
         super().__init__(**kwargs)  # 还可以往上调用，是因为object 是所有对象的基类; 只是再python3.x中可以不显示声明继承object
@@ -423,18 +426,33 @@ class Rectangle:
 # 正方形
 class Square(Rectangle):
     def __init__(self, length, **kwargs):
+        print("[Square] __init__", length, kwargs)
         super().__init__(length=length, width=length, **kwargs)  # 调用父类进行初始化
+
+
+print("**** 查看类的MRO ****")
+
+# 对于Rectangle的实例而言，调用它的任何方法，它首先会从Rectangle中找对应的方法，其次是object。
+# 提示：object是python中所有类的基类，它实际上没有任何特殊方法以外的方法。
+print("Rectangle : ", Rectangle.__mro__)
+
+# 方式1 (输出一个元组)
+print("Square : ", Square.__mro__)
+# 方式2
+print("Square : ", Square.mro())
 
 
 # 立方体
 class Cube(Square):
     # 表面积
     def surface_area(self):
+        print("[Cube] You're getting the surface_area...")
         face_area = super().area()
         return face_area * 6
 
     # 体积
     def volume(self):
+        print("[Cube] You're getting the volume...")
         face_area = super().area()
         return face_area * self.length
 
@@ -442,28 +460,105 @@ class Cube(Square):
 # 三角形
 class Triangle:
     def __init__(self, base, height, **kwargs):
+        print("[Triangle] __init__", base, height, kwargs)
         self.base = base
         self.height = height
-        super().__init__(**kwargs)
+        super().__init__(**kwargs)  # 调用父类进行初始化
 
-    def tri_area(self):
+    def area(self):
+        print("[Triangle] You're getting the area...")
         return 0.5 * self.base * self.height
 
 
+# 金字塔 RightPyramid
 class RightPyramid(Square, Triangle):
     def __init__(self, base, slant_height, **kwargs):
+        print("[RightPyramid] __init__", base, slant_height, kwargs)
         self.base = base
-        self.slant_height = slant_height
+        self.slant_height = slant_height  # 斜高
         kwargs["height"] = slant_height
         kwargs["length"] = base
-        super().__init__(base=base, **kwargs)
+        # super().__init__(base, **kwargs)  # 调用父类, 错误, 这个例子可以很好的理解下函数的传参数
+        super().__init__(base=base, **kwargs)  # 调用父类, 正确
 
+    # 求出底面积，然后利用底面周长 * 斜高 / 2 来求侧面积，最终相加得到总的表面积
     def area(self):
-        base_area = super().area()
-        perimeter = super().perimeter()
+        print("[RightPyramid] You're getting the area...")
+        base_area = super().area()  # 调用父类
+        perimeter = super().perimeter()  # 调用父类
         return 0.5 * perimeter * self.slant_height + base_area
 
+    # 求表面积，这种方法是先求每个侧面的面积，再加上底面积
     def area_2(self):
-        base_area = super().area()
-        triangle_area = super().tri_area()
+        print("[RightPyramid] You're getting the area...")
+        base_area = super().area()  # 调用父类
+        triangle_area = super().area()  # 调用父类
         return triangle_area * 4 + base_area
+
+
+print("**** super单继承调用 ****")
+
+# 简单继承调用
+print(">>>> (Square)")
+print("Square MRO : ", Square.__mro__)
+
+sq = Square(10)
+print("面积 :", sq.area(), "周长 :", sq.perimeter())
+
+# 简单继承调用
+print(">>>> (Cube)")
+print("Cube MRO : ", Cube.__mro__)
+
+c = Cube(9)
+print("表面积 :", c.surface_area())
+print("体积 :", c.volume())
+
+print("**** super多继承调用 ****")
+
+# 这里要仔细看下，在继承链路中，在 Rectangle 后的不是 object 而是 Triangle 然后 object
+# 因为在 object 链路节点下，Rectangle 和 Triangle 是平级的！！！
+# 在 Pycharm 工具中，也有可视化查看类调用链路的页面按钮，更方便！！！
+print("Rectangle MRO : ", RightPyramid.__mro__)
+
+pyramid = RightPyramid(2, 4)
+print("area :", pyramid.area())
+print("area_2 :", pyramid.area_2())
+
+"""
+**** 查看类的MRO ****
+Rectangle :  (<class '__main__.Rectangle'>, <class 'object'>)
+Square :  (<class '__main__.Square'>, <class '__main__.Rectangle'>, <class 'object'>)
+Square :  [<class '__main__.Square'>, <class '__main__.Rectangle'>, <class 'object'>]
+**** super单继承调用 ****
+>>>> (Square)
+Square MRO :  (<class '__main__.Square'>, <class '__main__.Rectangle'>, <class 'object'>)
+[Square] __init__ 10 {}
+[Rectangle] __init__ 10 10 {}
+[Rectangle] You're getting the area...
+[Rectangle] You're getting the perimeter...
+面积 : 100 周长 : 40
+>>>> (Cube)
+Cube MRO :  (<class '__main__.Cube'>, <class '__main__.Square'>, <class '__main__.Rectangle'>, <class 'object'>)
+[Square] __init__ 9 {}
+[Rectangle] __init__ 9 9 {}
+[Cube] You're getting the surface_area...
+[Rectangle] You're getting the area...
+表面积 : 486
+[Cube] You're getting the volume...
+[Rectangle] You're getting the area...
+体积 : 729
+**** super多继承调用 ****
+Rectangle MRO :  (<class '__main__.RightPyramid'>, <class '__main__.Square'>, <class '__main__.Rectangle'>, <class '__main__.Triangle'>, <class 'object'>)
+[RightPyramid] __init__ 2 4 {}
+[Square] __init__ 2 {'base': 2, 'height': 4}
+[Rectangle] __init__ 2 2 {'base': 2, 'height': 4}
+[Triangle] __init__ 2 4 {}
+[RightPyramid] You're getting the area...
+[Rectangle] You're getting the area...
+[Rectangle] You're getting the perimeter...
+area : 20.0
+[RightPyramid] You're getting the area...
+[Rectangle] You're getting the area...
+[Rectangle] You're getting the area...
+area_2 : 20
+"""
